@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">StabenSoundboard</string>
+    <string name="app_name">Staben Soundboard</string>
+    <string name="edit_message">Enter a message</string>
+    <string name="button_send">Send</string>
 </resources>
