@@ -10,10 +10,15 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
 
     private boolean playing = false;
+    private String prevName = "";
+    private int[] bgColor = {0xfff0f0f0, 0xffe0e0e0};
+    private int bgIndex = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,8 +41,13 @@ public class MainActivity extends AppCompatActivity {
                 final LayoutParams lparams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
                 final Button button = new Button(this);
                 button.setLayoutParams(lparams);
-                button.setText(name[1] + " " + name[2]);
+                button.setText(name[1] + " " + parseString(name[2]));
                 button.setOnClickListener(onClick(field.getInt(field)));
+                if(!prevName.equals(name[1])) {
+                    bgIndex = (bgIndex + 1) % 2;
+                    prevName = name[1];
+                }
+                button.setBackgroundColor(bgColor[bgIndex]);
                 return button;
             } else {
                 return null;
@@ -47,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return null;
+    }
+
+    private String parseString(String raw) {
+        return raw.replace("oo", "ö").replace("aaa", "å").replace("aa", "ä").replace("z", " ");
     }
 
     private OnClickListener onClick(final int RID) {

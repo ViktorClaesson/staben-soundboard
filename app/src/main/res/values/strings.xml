@@ -1,5 +1,3 @@
 <resources>
     <string name="app_name">Staben Soundboard</string>
-    <string name="edit_message">Enter a search term</string>
-    <string name="button_search">Search</string>
 </resources>
