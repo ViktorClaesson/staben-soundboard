@@ -1,0 +1,14 @@
+Release v1.0.0
+	+ Project started: App starts, prints "Hello World!".
+
+
+Release v1.0.1
+	+ LinearLayout as a main list.
+	+ Now reads in all files and makes buttons for each one, that plays the voice line.
+	+ Now has a apk files, and is bootable
+
+Release v1.0.2
+	+ Pause/play button
+	+ Pressable dropdown menus for each person
+
+	- Release v1.0.1 apk, it's lost forever..
