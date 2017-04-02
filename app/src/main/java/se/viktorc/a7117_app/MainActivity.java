@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void buildMenu(LinearLayout mLayout, String name) {
         if(!name.equals(prevName)) {
+            menus.get(prevName).buildImage();
+
             bgIndex = (bgIndex + 1) % 2;
             prevName = name;
 
@@ -98,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         button.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         button.setText(parseString(name));
         button.setAllCaps(false);
-        button.setOnClickListener(songClick(RID));
+        button.setOnClickListener(songClick(button.getText(), RID));
         button.setBackgroundColor(bgColor[bgIndex]);
         mLayout.addView(button);
         button.setVisibility(View.GONE);
@@ -138,10 +140,11 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private OnClickListener songClick(final int RID) {
+    private OnClickListener songClick(final CharSequence name, final int RID) {
         return new OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((TextView) findViewById(R.id.currently_playing)).setText(String.format("%s %s", getString(R.string.currently_playing), name));
                 ((ImageButton) findViewById(R.id.media_control)).setImageResource(Resources.getSystem().getIdentifier("ic_media_pause", "drawable", "android"));
 
                 if (mediaPlayer != null) {
