@@ -12,3 +12,10 @@ Release v1.0.2
 	+ Pressable dropdown menus for each person
 
 	- Release v1.0.1 apk, it's lost forever..
+
+Release v1.0.3
+	+ Upgraded visuals
+	
+
+	/ Renamed all resource files.
+	/ Made collapse/expand UTF-8 characters instead of Images.

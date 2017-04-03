@@ -1,12 +1,10 @@
 package se.viktorc.a7117_app;
 
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -15,7 +13,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -43,10 +40,22 @@ public class MainActivity extends AppCompatActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         ConstraintLayout root = (ConstraintLayout) findViewById(R.id.layout_root);
-        root.setBackground(getDrawable(R.drawable.bibbi));
+        root.setBackground(getDrawable(R.drawable.p_bibbi1));
 
         menus = new TreeMap<String, Menu>();
         build();
+        try {
+            for (Field f : R.drawable.class.getFields()) {
+                String[] op = f.getName().split("_");
+                if (op[0].equals("p")) {
+                    System.out.println("Adding " + op[1]);
+                    menus.get(op[1].substring(0, op[1].length() - 1)).put(getDrawable(f.getInt(f)));
+                }
+                System.gc();
+            }
+        } catch(IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     private void build() {
@@ -59,8 +68,8 @@ public class MainActivity extends AppCompatActivity {
             try {
                 String[] name = field.getName().split("_");
                 if(name[0].equals("ljud")) {
-                    buildMenu(mLayout, parseString(name[1]));
-                    buildButton(mLayout, parseString(name[1]), parseString(name[2]), field.getInt(field));
+                    buildMenu(mLayout, name[1]);
+                    buildButton(mLayout, name[1], parseString(name[2]), field.getInt(field));
                 }
             } catch(IllegalAccessException e) {
                 e.printStackTrace();
@@ -76,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
             LinearLayout newLayout = new LinearLayout(this);
             newLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
             newLayout.setOrientation(LinearLayout.HORIZONTAL);
-            //newLayout.setBackgroundColor(bgColor[bgIndex]);
             newLayout.setOnClickListener(menuClick(name));
 
             final TextView text = new TextView(this);
@@ -85,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             text.setTextSize(40);
             text.setGravity(Gravity.CENTER_VERTICAL);
             text.setTypeface(Typeface.SERIF, Typeface.BOLD);
-            text.setText(String.format(" %s " + ((char) 0x21F2), name));
+            text.setText(String.format(" %s " + ((char) 0x21F2), parseString(name)));
             text.setTextColor(ContextCompat.getColor(this, colors[colorIndex]));
             text.setShadowLayer(1.5f, 3, 3, Color.BLACK);
 
@@ -100,9 +108,9 @@ public class MainActivity extends AppCompatActivity {
     private void buildButton(LinearLayout mLayout, String owner, String name, int RID) {
         final TextView button = new TextView(this);
         button.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        button.setOnClickListener(songClick(name, RID));
+        button.setOnClickListener(songClick(owner, name, RID));
         //button.setBackgroundColor(bgColor[bgIndex]);
-        button.setText(" > " + name);
+        button.setText("   > " + name);
         button.setTextColor(ContextCompat.getColor(this, colors[colorIndex]));
         button.setTextSize(32);
         button.setShadowLayer(4f, 3, 3, Color.BLACK);
@@ -144,15 +152,14 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private OnClickListener songClick(final CharSequence name, final int RID) {
+    private OnClickListener songClick(final String owner, final CharSequence name, final int RID) {
         return new OnClickListener() {
-
-            private String parsedName = parseString(name.toString());
 
             @Override
             public void onClick(View v) {
-                ((TextView) findViewById(R.id.currently_playing)).setText(String.format("%s %s", getString(R.string.currently_playing), parsedName));
+                ((TextView) findViewById(R.id.currently_playing)).setText(String.format("%s %s", getString(R.string.currently_playing), name));
                 ((ImageButton) findViewById(R.id.media_control)).setImageResource(R.drawable.media_pause);
+                ((ConstraintLayout) findViewById(R.id.layout_root)).setBackground(menus.get(owner).nextImage());
 
                 if (mediaPlayer != null) {
                     mediaPlayer.stop();

@@ -1,9 +1,7 @@
 package se.viktorc.a7117_app;
 
-import android.speech.tts.TextToSpeech;
+import android.graphics.drawable.Drawable;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
@@ -18,7 +16,10 @@ public class Menu {
 
     private boolean showing = false;
     private ArrayList<TextView> buttons = new ArrayList<TextView>();
+    private ArrayList<Drawable> images = new ArrayList<Drawable>();
     private TextView text;
+    private String name;
+    private int counter = -1;
 
     public Menu(TextView text_) {
         text = text_;
@@ -26,6 +27,10 @@ public class Menu {
 
     public void put(TextView button) {
         buttons.add(button);
+    }
+
+    public void put(Drawable image) {
+        images.add(image);
     }
 
     public void update() {
@@ -49,6 +54,11 @@ public class Menu {
         for(TextView b : buttons) {
             b.setVisibility(View.VISIBLE);
         }
+    }
+
+    public Drawable nextImage() {
+        counter = (counter + 1) % images.size();
+        return images.get(counter);
     }
 
 }
