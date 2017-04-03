@@ -1,8 +1,12 @@
 package se.viktorc.a7117_app;
 
+import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -13,14 +17,14 @@ import java.util.ArrayList;
 public class Menu {
 
     private boolean showing = false;
-    private ArrayList<Button> buttons = new ArrayList<Button>();
-    private ImageView image;
+    private ArrayList<TextView> buttons = new ArrayList<TextView>();
+    private TextView text;
 
-    public Menu(ImageView image_) {
-        image = image_;
+    public Menu(TextView text_) {
+        text = text_;
     }
 
-    public void put(Button button) {
+    public void put(TextView button) {
         buttons.add(button);
     }
 
@@ -34,21 +38,17 @@ public class Menu {
     }
 
     private void hide() {
-        image.setImageResource(R.drawable.collapsed);
-        for(Button b : buttons) {
+        text.setText(text.getText().subSequence(0, text.length() - 2) + " " + ((char) 0x21F2));
+        for(TextView b : buttons) {
             b.setVisibility(View.GONE);
         }
     }
 
     private void show() {
-        image.setImageResource(R.drawable.expanded);
-        for(Button b : buttons) {
+        text.setText(text.getText().subSequence(0, text.length() - 2) + " " + ((char) 0x21F1));
+        for(TextView b : buttons) {
             b.setVisibility(View.VISIBLE);
         }
-    }
-
-    public void buildImage() {
-
     }
 
 }

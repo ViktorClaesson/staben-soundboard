@@ -1,5 +1,9 @@
 package se.viktorc.a7117_app;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import android.content.res.Resources;
@@ -10,7 +14,6 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,8 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean paused = false;
     private String prevName = null;
-    private int[] bgColor = {0xfff0f0f0, 0xffe0e0e0};
-    private int bgIndex = 0;
+
+    private int colorIndex = 1;
+    private int[] colors = { R.color.rosa, R.color.lila };
 
     private MediaPlayer mediaPlayer;
 
@@ -38,12 +42,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
+        ConstraintLayout root = (ConstraintLayout) findViewById(R.id.layout_root);
+        root.setBackground(getDrawable(R.drawable.bibbi));
+
         menus = new TreeMap<String, Menu>();
         build();
     }
 
     private void build() {
-        LinearLayout mLayout = (LinearLayout) findViewById(R.id.layout);
+        LinearLayout mLayout = (LinearLayout) findViewById(R.id.layout_list);
         Field[] fields = R.raw.class.getFields();
 
         findViewById(R.id.media_control).setOnClickListener(mediaClick());
@@ -52,8 +59,8 @@ public class MainActivity extends AppCompatActivity {
             try {
                 String[] name = field.getName().split("_");
                 if(name[0].equals("ljud")) {
-                    buildMenu(mLayout, name[1]);
-                    buildButton(mLayout, name[1], name[2], field.getInt(field));
+                    buildMenu(mLayout, parseString(name[1]));
+                    buildButton(mLayout, parseString(name[1]), parseString(name[2]), field.getInt(field));
                 }
             } catch(IllegalAccessException e) {
                 e.printStackTrace();
@@ -63,48 +70,45 @@ public class MainActivity extends AppCompatActivity {
 
     private void buildMenu(LinearLayout mLayout, String name) {
         if(!name.equals(prevName)) {
-            menus.get(prevName).buildImage();
-
-            bgIndex = (bgIndex + 1) % 2;
+            colorIndex = (colorIndex + 1) % 2;
             prevName = name;
 
             LinearLayout newLayout = new LinearLayout(this);
             newLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
             newLayout.setOrientation(LinearLayout.HORIZONTAL);
-            newLayout.setBackgroundColor(bgColor[bgIndex]);
+            //newLayout.setBackgroundColor(bgColor[bgIndex]);
             newLayout.setOnClickListener(menuClick(name));
 
             final TextView text = new TextView(this);
-            text.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            text.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
             text.setAllCaps(true);
             text.setTextSize(40);
-            text.setGravity(Gravity.CENTER);
+            text.setGravity(Gravity.CENTER_VERTICAL);
             text.setTypeface(Typeface.SERIF, Typeface.BOLD);
-            text.setText(String.format(" %s ", name));
-
-            final ImageView image = new ImageView(this);
-            image.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-            image.setImageResource(R.drawable.collapsed);
+            text.setText(String.format(" %s " + ((char) 0x21F2), name));
+            text.setTextColor(ContextCompat.getColor(this, colors[colorIndex]));
+            text.setShadowLayer(1.5f, 3, 3, Color.BLACK);
 
             newLayout.addView(text);
-            newLayout.addView(image);
 
             mLayout.addView(newLayout);
 
-            menus.put(name, new Menu(image));
+            menus.put(name, new Menu(text));
         }
     }
 
     private void buildButton(LinearLayout mLayout, String owner, String name, int RID) {
-        final Button button = new Button(this);
+        final TextView button = new TextView(this);
         button.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        button.setText(parseString(name));
-        button.setAllCaps(false);
-        button.setOnClickListener(songClick(button.getText(), RID));
-        button.setBackgroundColor(bgColor[bgIndex]);
+        button.setOnClickListener(songClick(name, RID));
+        //button.setBackgroundColor(bgColor[bgIndex]);
+        button.setText(" > " + name);
+        button.setTextColor(ContextCompat.getColor(this, colors[colorIndex]));
+        button.setTextSize(32);
+        button.setShadowLayer(4f, 3, 3, Color.BLACK);
+        button.setGravity(Gravity.CENTER_VERTICAL);
         mLayout.addView(button);
         button.setVisibility(View.GONE);
-
         menus.get(owner).put(button);
     }
 
@@ -121,10 +125,10 @@ public class MainActivity extends AppCompatActivity {
                     paused = !paused;
                     if (!paused) { // since we have to reverse it before it needs to be negated here.
                         mediaPlayer.start();
-                        ((ImageButton) findViewById(R.id.media_control)).setImageResource(Resources.getSystem().getIdentifier("ic_media_pause", "drawable", "android"));
+                        ((ImageButton) findViewById(R.id.media_control)).setImageResource(R.drawable.media_pause);
                     } else {
                         mediaPlayer.pause();
-                        ((ImageButton) findViewById(R.id.media_control)).setImageResource(Resources.getSystem().getIdentifier("ic_media_play", "drawable", "android"));
+                        ((ImageButton) findViewById(R.id.media_control)).setImageResource(R.drawable.media_play);
                     }
                 }
             }
@@ -142,10 +146,13 @@ public class MainActivity extends AppCompatActivity {
 
     private OnClickListener songClick(final CharSequence name, final int RID) {
         return new OnClickListener() {
+
+            private String parsedName = parseString(name.toString());
+
             @Override
             public void onClick(View v) {
-                ((TextView) findViewById(R.id.currently_playing)).setText(String.format("%s %s", getString(R.string.currently_playing), name));
-                ((ImageButton) findViewById(R.id.media_control)).setImageResource(Resources.getSystem().getIdentifier("ic_media_pause", "drawable", "android"));
+                ((TextView) findViewById(R.id.currently_playing)).setText(String.format("%s %s", getString(R.string.currently_playing), parsedName));
+                ((ImageButton) findViewById(R.id.media_control)).setImageResource(R.drawable.media_pause);
 
                 if (mediaPlayer != null) {
                     mediaPlayer.stop();
@@ -161,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                             @Override
                             public void onCompletion(MediaPlayer mp) {
-                                ((ImageButton) findViewById(R.id.media_control)).setImageResource(Resources.getSystem().getIdentifier("ic_media_play", "drawable", "android"));
+                                ((ImageButton) findViewById(R.id.media_control)).setImageResource(R.drawable.media_play);
                                 paused = true;
                             }
                         });
