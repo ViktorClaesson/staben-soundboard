@@ -1,7 +1,6 @@
 Release v1.0.0
 	+ Project started: App starts, prints "Hello World!".
 
-
 Release v1.0.1
 	+ LinearLayout as a main list.
 	+ Now reads in all files and makes buttons for each one, that plays the voice line.
@@ -16,6 +15,12 @@ Release v1.0.2
 Release v1.0.3
 	+ Upgraded visuals
 	
-
 	/ Renamed all resource files.
 	/ Made collapse/expand UTF-8 characters instead of Images.
+
+Release v1.0.4
+	+ Switches image depending on whose voiceline it is.
+	- Removed one toadie image. RIP Toadie.	
+
+	$ Fixed memory leak bug.
+	/ Renamed some files
