@@ -1,8 +1,10 @@
 package se.viktorc.a7117_app;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import android.graphics.Typeface;
@@ -13,6 +15,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private int[] colors = { R.color.rosa, R.color.lila };
 
     private MediaPlayer mediaPlayer;
+    private Bitmap bitmap;
 
     private Map<String, Menu> menus;
 
@@ -39,9 +43,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        ConstraintLayout root = (ConstraintLayout) findViewById(R.id.layout_root);
-        root.setBackground(getDrawable(R.drawable.p_bibbi1));
-
         menus = new TreeMap<String, Menu>();
         build();
         try {
@@ -49,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
                 String[] op = f.getName().split("_");
                 if (op[0].equals("p")) {
                     System.out.println("Adding " + op[1]);
-                    menus.get(op[1].substring(0, op[1].length() - 1)).put(getDrawable(f.getInt(f)));
+                    menus.get(op[1].substring(0, op[1].length() - 1)).put(f.getInt(f));
                 }
                 System.gc();
             }
-        } catch(IllegalAccessException e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }
@@ -109,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
         final TextView button = new TextView(this);
         button.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         button.setOnClickListener(songClick(owner, name, RID));
-        //button.setBackgroundColor(bgColor[bgIndex]);
         button.setText("   > " + name);
         button.setTextColor(ContextCompat.getColor(this, colors[colorIndex]));
         button.setTextSize(32);
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(mediaPlayer != null) {
                     paused = !paused;
-                    if (!paused) { // since we have to reverse it before it needs to be negated here.
+                    if (!paused) {  //since we have to reverse it before it needs to be negated here.
                         mediaPlayer.start();
                         ((ImageButton) findViewById(R.id.media_control)).setImageResource(R.drawable.media_pause);
                     } else {
@@ -159,12 +159,18 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ((TextView) findViewById(R.id.currently_playing)).setText(String.format("%s %s", getString(R.string.currently_playing), name));
                 ((ImageButton) findViewById(R.id.media_control)).setImageResource(R.drawable.media_pause);
-                ((ConstraintLayout) findViewById(R.id.layout_root)).setBackground(menus.get(owner).nextImage());
+                ImageView img = (ImageView) findViewById(R.id.background);
+                if(bitmap != null)
+                    bitmap.recycle();
+                bitmap = null;
+                bitmap = BitmapFactory.decodeResource(getResources(), menus.get(owner).nextImageID());
+                img.setImageBitmap(bitmap);
 
                 if (mediaPlayer != null) {
                     mediaPlayer.stop();
                     mediaPlayer.release();
                     mediaPlayer = null;
+                    System.gc();
                 }
 
                 new Thread() {

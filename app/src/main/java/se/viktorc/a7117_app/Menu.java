@@ -16,7 +16,7 @@ public class Menu {
 
     private boolean showing = false;
     private ArrayList<TextView> buttons = new ArrayList<TextView>();
-    private ArrayList<Drawable> images = new ArrayList<Drawable>();
+    private ArrayList<Integer> imageIDs = new ArrayList<Integer>();
     private TextView text;
     private String name;
     private int counter = -1;
@@ -29,8 +29,8 @@ public class Menu {
         buttons.add(button);
     }
 
-    public void put(Drawable image) {
-        images.add(image);
+    public void put(int imageID) {
+        imageIDs.add(imageID);
     }
 
     public void update() {
@@ -56,9 +56,9 @@ public class Menu {
         }
     }
 
-    public Drawable nextImage() {
-        counter = (counter + 1) % images.size();
-        return images.get(counter);
+    public int nextImageID() {
+        counter = (counter + 1) % imageIDs.size();
+        return imageIDs.get(counter);
     }
 
 }
