@@ -1,5 +1,6 @@
 package se.viktorc.a7117_app;
 
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -56,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch(Exception e) {
             e.printStackTrace();
+        }
+
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            changeImage(menus.get("bumbistab").nextImageID());
         }
     }
 
@@ -152,6 +157,15 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    private void changeImage(int rid) {
+        ImageView img = (ImageView) findViewById(R.id.background);
+        if(bitmap != null)
+            bitmap.recycle();
+        bitmap = null;
+        bitmap = BitmapFactory.decodeResource(getResources(), rid);
+        img.setImageBitmap(bitmap);
+    }
+
     private OnClickListener songClick(final String owner, final CharSequence name, final int RID) {
         return new OnClickListener() {
 
@@ -159,12 +173,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ((TextView) findViewById(R.id.currently_playing)).setText(String.format("%s %s", getString(R.string.currently_playing), name));
                 ((ImageButton) findViewById(R.id.media_control)).setImageResource(R.drawable.media_pause);
-                ImageView img = (ImageView) findViewById(R.id.background);
-                if(bitmap != null)
-                    bitmap.recycle();
-                bitmap = null;
-                bitmap = BitmapFactory.decodeResource(getResources(), menus.get(owner).nextImageID());
-                img.setImageBitmap(bitmap);
+                if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && !owner.equals("bumbistab")){
+                    changeImage(menus.get(owner).nextImageID());
+                } else if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && owner.equals("bumbistab")){
+                    changeImage(menus.get(owner).nextImageID());
+                }
 
                 if (mediaPlayer != null) {
                     mediaPlayer.stop();
